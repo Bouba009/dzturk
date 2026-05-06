@@ -68,10 +68,15 @@
         .menu-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); z-index: 999; display: none; backdrop-filter: blur(3px);}
         .menu-overlay.active { display: block; }
 
-        /* البانر */
-        .banner { width: 100%; height: 400px; display: flex; justify-content: center; align-items: center; background: #eee; overflow: hidden; }
+        /* البانر بمقاس احترافي متجاوب */
+        .banner { 
+            width: 100%; 
+            height: clamp(200px, 35vw, 450px); /* مقاس بانر عرضي مناسب */
+            display: flex; justify-content: center; align-items: center; 
+            background: #eee; overflow: hidden; 
+        }
         .banner a { width: 100%; height: 100%; display: block; }
-        .banner img { width: 100%; height: 100%; object-fit: cover; }
+        .banner img { width: 100%; height: 100%; object-fit: cover; object-position: center; }
 
         /* الشريط المتحرك */
         .ticker-wrap {
@@ -88,14 +93,19 @@
         @keyframes moveRight { from { transform: translateX(-100%); } to { transform: translateX(100vw); } }
         @keyframes moveLeft { from { transform: translateX(100vw); } to { transform: translateX(-100%); } }
 
-        /* السلع (منتجات حقيقية) */
-        .products-container { padding: 50px 5%; display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 30px; }
+        /* السلع (2 في كل سطر) */
+        .products-container { 
+            padding: 50px 5%; 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); /* إجبار عرض 2 في كل سطر دائماً */
+            gap: 30px; 
+        }
         .product-card { background: var(--card-bg); border-radius: 15px; overflow: hidden; box-shadow: var(--shadow); transition: var(--transition); }
         .product-card:hover { transform: translateY(-10px); box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
-        .product-img { width: 100%; height: 280px; object-fit: cover; border-bottom: 2px solid #eee; }
+        .product-img { width: 100%; height: 350px; object-fit: cover; border-bottom: 2px solid #eee; }
         .product-info { padding: 20px; text-align: center; }
-        .product-title { font-weight: 700; margin-bottom: 10px; font-size: 16px;}
-        .product-price { color: var(--primary-color); font-weight: 800; font-size: 20px; }
+        .product-title { font-weight: 700; margin-bottom: 10px; font-size: 18px;}
+        .product-price { color: var(--primary-color); font-weight: 800; font-size: 22px; }
 
         /* الفوتر (تذييل الموقع) */
         .site-footer {
@@ -132,7 +142,6 @@
             display: none; justify-content: center; align-items: center; z-index: 1000;
         }
         .modal-content {
-            /* وضع صورة البانر نفسها كخلفية للنافذة أيضاً */
             background: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh5ajumPR-7XGR_DH8DLgETwoGWishMLPCjVV4kpew2a__Yu_zVN1ICKqeuKJ85DvArt63ZeS6jVnhaNMkPslyeS1H-r3GRDnrg7LL0MLu-MBEiYTws7lPrkoqnLXXfUBtUCuoAMywYWznu56uDZW11KZ-XjDWTNwnzRdaA4udl8aamUGb-8PpG4qp5xy4/s1536/1000015383.png') center/cover; 
             width: 90%; max-width: 450px; border-radius: 20px; position: relative; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
@@ -184,10 +193,18 @@
         .admin-form input, .admin-form textarea { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; font-family:inherit;}
         .admin-btn { background: var(--primary-color); color: white; padding: 12px 25px; border-radius: 8px; font-weight:bold; }
         
+        /* التجاوب للموبايل */
         @media(max-width: 768px) {
             .search-bar { display: none; }
             #admin-dashboard { grid-template-columns: 1fr; }
             .sidebar { display: none; } 
+            
+            /* إعدادات المنتجات للموبايل للحفاظ على 2 في السطر بأناقة */
+            .products-container { padding: 30px 5%; gap: 15px; }
+            .product-img { height: 180px; }
+            .product-info { padding: 15px 10px; }
+            .product-title { font-size: 14px; }
+            .product-price { font-size: 16px; }
         }
     </style>
 </head>
@@ -237,7 +254,7 @@
                 </div>
             </div>
 
-            <!-- قسم المنتجات -->
+            <!-- قسم المنتجات (2 في كل سطر) -->
             <div class="products-container" id="products-list">
                 <!-- سيتم توليد المنتجات بواسطة الجافاسكربت -->
             </div>
@@ -422,7 +439,7 @@
                 if(el.tagName === 'INPUT') el.placeholder = translations[currentLang][key];
                 else el.innerText = translations[currentLang][key];
             });
-            renderProducts(); // إعادة تصيير المنتجات بتسميات اللغة الجديدة
+            renderProducts(); 
         }
 
         // --- وظائف القائمة الجانبية الموبايل ---
@@ -435,14 +452,14 @@
 
         // --- توليد منتجات عشوائية (ملابس، حقائب، إكسسوارات حقيقية) ---
         const productImages =[
-            "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=400&q=80", // جاكيت
-            "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=400&q=80", // حقيبة
-            "https://images.unsplash.com/photo-1523206489230-c012c64b2b48?auto=format&fit=crop&w=400&q=80", // ساعة
-            "https://images.unsplash.com/photo-1584916201218-f4242ceb4809?auto=format&fit=crop&w=400&q=80", // حذاء
-            "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&w=400&q=80", // ملابس
-            "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=400&q=80", // حقيبة ظهر
-            "https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=400&q=80", // سترة جلدية
-            "https://images.unsplash.com/photo-1601924994987-69e26d50dc26?auto=format&fit=crop&w=400&q=80"  // إكسسوارات
+            "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=600&q=80", // جاكيت
+            "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=600&q=80", // حقيبة
+            "https://images.unsplash.com/photo-1523206489230-c012c64b2b48?auto=format&fit=crop&w=600&q=80", // ساعة
+            "https://images.unsplash.com/photo-1584916201218-f4242ceb4809?auto=format&fit=crop&w=600&q=80", // حذاء
+            "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&w=600&q=80", // ملابس
+            "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=600&q=80", // حقيبة ظهر
+            "https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=600&q=80", // سترة جلدية
+            "https://images.unsplash.com/photo-1601924994987-69e26d50dc26?auto=format&fit=crop&w=600&q=80"  // إكسسوارات
         ];
         const namesAr =["جاكيت شتوي أنيق", "حقيبة جلدية فاخرة", "ساعة يد كلاسيكية", "حذاء رياضي مريح", "طقم ملابس صيفي", "حقيبة ظهر عصرية", "سترة جلدية أصلية", "إكسسوارات نسائية"];
         const namesFr =["Veste d'hiver", "Sac en cuir", "Montre classique", "Baskets confortables", "Ensemble d'été", "Sac à dos", "Veste en cuir", "Accessoires"];
@@ -480,7 +497,7 @@
             document.getElementById('warningMsg').style.display = 'block';
         }
 
-        // --- نظام التوجيه الذكي (يدعم url/admin09 أو ?admin09 أو #admin09) ---
+        // --- نظام التوجيه الذكي ---
         function checkRoute() {
             const url = window.location.href;
             const clientView = document.getElementById('client-view');
@@ -499,7 +516,7 @@
                     adminDash.style.display = 'none';
                 }
             } else {
-                clientView.style.display = 'flex'; // Flex للحفاظ على الفوتر في الأسفل
+                clientView.style.display = 'flex'; 
                 adminWrapper.style.display = 'none';
             }
         }
@@ -521,7 +538,6 @@
         function logoutAdmin() {
             sessionStorage.removeItem('isAdmin');
             document.getElementById('adminPwd').value = '';
-            // العودة للموقع الرئيسي (إزالة admin09 من الرابط)
             window.location.href = window.location.href.split('#')[0].split('?')[0].replace('admin09', '');
         }
         function switchTab(tabId) {
