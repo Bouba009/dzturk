@@ -26,112 +26,98 @@
 
         /* ================= الإعدادات العامة ================= */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: var(--font-ar);
-            background-color: var(--bg-color);
-            color: var(--text-dark);
-            overflow-x: hidden;
-        }
+        body { font-family: var(--font-ar); background-color: var(--bg-color); color: var(--text-dark); overflow-x: hidden; }
         body[dir="ltr"] { font-family: var(--font-fr); }
         a { text-decoration: none; color: inherit; }
         ul { list-style: none; }
         button { cursor: pointer; border: none; outline: none; font-family: inherit; }
         
         /* ================= واجهة العميل ================= */
-        #client-view { display: block; }
+        #client-view { display: block; min-height: 100vh; display: flex; flex-direction: column; }
+        #main-content { flex: 1; }
         
         /* الهيدر */
         header {
-            background: var(--card-bg);
-            padding: 15px 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: var(--shadow);
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            background: var(--card-bg); padding: 15px 5%; display: flex; justify-content: space-between;
+            align-items: center; box-shadow: var(--shadow); position: sticky; top: 0; z-index: 100;
         }
         .logo { font-size: 28px; font-weight: 800; color: var(--primary-color); }
-        .search-bar {
-            display: flex;
-            align-items: center;
-            background: #f0f0f0;
-            border-radius: 25px;
-            padding: 5px 15px;
-            width: 40%;
-        }
-        .search-bar input {
-            border: none;
-            background: transparent;
-            padding: 8px;
-            width: 100%;
-            outline: none;
-        }
+        .search-bar { display: flex; align-items: center; background: #f0f0f0; border-radius: 25px; padding: 5px 15px; width: 40%; }
+        .search-bar input { border: none; background: transparent; padding: 8px; width: 100%; outline: none; font-family: inherit;}
         .search-bar i { color: var(--primary-color); }
-        .header-icons { display: flex; gap: 20px; align-items: center; font-size: 20px; color: var(--primary-color); }
-        .lang-btn { background: var(--primary-color); color: white; padding: 5px 10px; border-radius: 5px; font-size: 14px; }
+        .header-icons { display: flex; gap: 20px; align-items: center; font-size: 22px; color: var(--primary-color); }
+        .lang-btn { background: var(--primary-color); color: white; padding: 5px 10px; border-radius: 5px; font-size: 14px; font-weight: bold;}
+        .menu-btn { cursor: pointer; }
+
+        /* القائمة الجانبية (Sidebar) */
+        .side-menu {
+            height: 100%; width: 280px; position: fixed; z-index: 1000; top: 0; right: -280px;
+            background-color: var(--card-bg); overflow-x: hidden; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            padding-top: 80px; box-shadow: -5px 0 25px rgba(0,0,0,0.1);
+        }
+        [dir="ltr"] .side-menu { right: auto; left: -280px; box-shadow: 5px 0 25px rgba(0,0,0,0.1); }
+        .side-menu.open { right: 0; }
+        [dir="ltr"] .side-menu.open { left: 0; }
+        .side-menu a {
+            padding: 15px 30px; text-decoration: none; font-size: 18px; font-weight: 600;
+            color: var(--text-dark); display: block; transition: 0.3s;
+        }
+        .side-menu a:hover { color: var(--primary-color); background: #f5f5f5; border-right: 4px solid var(--primary-color); }[dir="ltr"] .side-menu a:hover { border-right: none; border-left: 4px solid var(--primary-color); }
+        .side-menu .close-btn { position: absolute; top: 20px; right: 30px; font-size: 30px; color: var(--primary-color); cursor: pointer; }
+        [dir="ltr"] .side-menu .close-btn { right: auto; left: 30px; }
+        .menu-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); z-index: 999; display: none; backdrop-filter: blur(3px);}
+        .menu-overlay.active { display: block; }
 
         /* البانر */
-        .banner {
-            width: 100%;
-            height: 400px;
-            background: url('banner.jpg') center/cover no-repeat; /* مسار الصورة التي أرفقتها */
-            background-color: #ccc; /* لون بديل في حال عدم وجود الصورة */
-            position: relative;
-        }
+        .banner { width: 100%; height: 400px; display: flex; justify-content: center; align-items: center; background: #eee; overflow: hidden; }
+        .banner a { width: 100%; height: 100%; display: block; }
+        .banner img { width: 100%; height: 100%; object-fit: cover; }
 
         /* الشريط المتحرك */
         .ticker-wrap {
-            background: var(--primary-color);
-            color: white;
-            padding: 10px 0;
-            overflow: hidden;
-            white-space: nowrap;
-            font-weight: 600;
+            background: var(--primary-color); color: white; padding: 12px 0;
+            overflow: hidden; white-space: nowrap; font-weight: 600; width: 100%; box-sizing: border-box;
         }
         .ticker {
-            display: inline-block;
-            animation: ticker 15s linear infinite;
+            display: inline-block; white-space: nowrap;
+            animation: moveRight 20s linear infinite; /* عربي: يسار إلى يمين */
         }
-        [dir="ltr"] .ticker { animation: ticker-ltr 15s linear infinite; }
-        @keyframes ticker { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
-        @keyframes ticker-ltr { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+        [dir="ltr"] .ticker {
+            animation: moveLeft 20s linear infinite; /* فرنسي: يمين إلى يسار */
+        }
+        @keyframes moveRight { from { transform: translateX(-100%); } to { transform: translateX(100vw); } }
+        @keyframes moveLeft { from { transform: translateX(100vw); } to { transform: translateX(-100%); } }
 
-        /* السلع (عشوائية) */
-        .products-container {
-            padding: 50px 5%;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 30px;
+        /* السلع (منتجات حقيقية) */
+        .products-container { padding: 50px 5%; display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 30px; }
+        .product-card { background: var(--card-bg); border-radius: 15px; overflow: hidden; box-shadow: var(--shadow); transition: var(--transition); }
+        .product-card:hover { transform: translateY(-10px); box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
+        .product-img { width: 100%; height: 280px; object-fit: cover; border-bottom: 2px solid #eee; }
+        .product-info { padding: 20px; text-align: center; }
+        .product-title { font-weight: 700; margin-bottom: 10px; font-size: 16px;}
+        .product-price { color: var(--primary-color); font-weight: 800; font-size: 20px; }
+
+        /* الفوتر (تذييل الموقع) */
+        .site-footer {
+            background: var(--card-bg); padding: 40px 5% 20px; text-align: center;
+            border-top: 1px solid #ddd; box-shadow: 0 -5px 20px rgba(0,0,0,0.03); margin-top: auto;
         }
-        .product-card {
-            background: var(--card-bg);
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: var(--shadow);
-            transition: var(--transition);
-        }
-        .product-card:hover { transform: translateY(-10px); }
-        .product-img { width: 100%; height: 250px; background: #ddd; object-fit: cover; }
-        .product-info { padding: 15px; text-align: center; }
-        .product-title { font-weight: 700; margin-bottom: 10px; }
-        .product-price { color: var(--primary-color); font-weight: 800; font-size: 18px; }
+        .footer-links { display: flex; justify-content: center; gap: 25px; flex-wrap: wrap; margin-bottom: 20px; }
+        .footer-links a { color: var(--text-dark); font-weight: 600; font-size: 16px; transition: 0.3s; }
+        .footer-links a:hover { color: var(--primary-color); }
+        .footer-logo { font-size: 24px; font-weight: 800; color: var(--primary-color); margin-bottom: 15px; }
+        .copyright { color: #888; font-size: 14px; margin-top: 20px; }
 
         /* الأزرار العائمة */
         .fab-container { position: fixed; bottom: 30px; z-index: 99; display: flex; flex-direction: column; gap: 15px; }
         .fab-right { right: 30px; }
         [dir="ltr"] .fab-right { right: auto; left: 30px; }
         .fab {
-            width: 60px; height: 60px;
-            border-radius: 50%;
-            display: flex; justify-content: center; align-items: center;
-            font-size: 30px; color: white;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            transition: var(--transition);
+            width: 60px; height: 60px; border-radius: 50%; display: flex; justify-content: center; align-items: center;
+            font-size: 30px; color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: var(--transition);
         }
         .fab-whatsapp { background: #25D366; }
-        .fab-whatsapp:hover { transform: scale(1.1); }
+        .fab-whatsapp:hover { transform: scale(1.1) rotate(10deg); }
         .fab-store { background: var(--primary-color); animation: pulse 2s infinite; }
         @keyframes pulse {
             0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(128, 0, 32, 0.7); }
@@ -143,87 +129,65 @@
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.6); backdrop-filter: blur(5px);
-            display: none; justify-content: center; align-items: center;
-            z-index: 1000;
+            display: none; justify-content: center; align-items: center; z-index: 1000;
         }
         .modal-content {
-            background: url('banner.jpg') center/cover; /* صورة خريطة تركيا والجزائر */
-            width: 90%; max-width: 500px;
-            border-radius: 20px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            /* وضع صورة البانر نفسها كخلفية للنافذة أيضاً */
+            background: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh5ajumPR-7XGR_DH8DLgETwoGWishMLPCjVV4kpew2a__Yu_zVN1ICKqeuKJ85DvArt63ZeS6jVnhaNMkPslyeS1H-r3GRDnrg7LL0MLu-MBEiYTws7lPrkoqnLXXfUBtUCuoAMywYWznu56uDZW11KZ-XjDWTNwnzRdaA4udl8aamUGb-8PpG4qp5xy4/s1536/1000015383.png') center/cover; 
+            width: 90%; max-width: 450px; border-radius: 20px; position: relative; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
-        .modal-glass {
-            background: rgba(255, 255, 255, 0.85); /* تأثير زجاجي فوق الصورة */
-            padding: 30px;
-            height: 100%; width: 100%;
-        }
-        .close-modal {
-            position: absolute; top: 15px; right: 15px; font-size: 24px; color: var(--primary-color); cursor: pointer;
-        }
+        .modal-glass { background: rgba(255, 255, 255, 0.90); padding: 30px; height: 100%; width: 100%; }
+        .close-modal { position: absolute; top: 15px; right: 15px; font-size: 24px; color: var(--primary-color); cursor: pointer; }
         [dir="ltr"] .close-modal { right: auto; left: 15px; }
         .modal-title { text-align: center; color: var(--primary-color); margin-bottom: 20px; font-weight: 800; }
-        .form-group { margin-bottom: 15px; }
-        .form-group input, .form-group select {
-            width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-family: inherit;
-        }
-        .submit-btn {
-            width: 100%; padding: 12px; background: var(--primary-color); color: white;
-            font-weight: bold; border-radius: 8px; font-size: 16px;
-        }
+        .form-group { margin-bottom: 12px; }
+        .form-group input { width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 8px; font-family: inherit; font-size:14px; outline:none; transition:0.3s;}
+        .form-group input:focus { border-color: var(--primary-color); box-shadow: 0 0 5px rgba(128,0,32,0.2); }
+        .submit-btn { width: 100%; padding: 12px; background: var(--primary-color); color: white; font-weight: bold; border-radius: 8px; font-size: 16px; margin-top: 10px; }
         .warning-msg {
             display: none; background: #ffebee; color: #c62828; padding: 15px;
-            border-radius: 8px; margin-top: 15px; text-align: center; border: 1px solid #c62828;
-            font-weight: bold;
+            border-radius: 8px; margin-top: 15px; text-align: center; border: 1px solid #c62828; font-weight: bold; font-size: 14px;
         }
 
         /* ================= واجهة الإدارة (Login + Dashboard) ================= */
-        #admin-wrapper { display: none; min-height: 100vh; }
+        #admin-wrapper { display: none; min-height: 100vh; background: #f4f6f9;}
         
-        /* تسجيل الدخول للإدارة */
-        #admin-login {
-            display: flex; justify-content: center; align-items: center; height: 100vh; background: var(--primary-color);
-        }
-        .login-box { background: white; padding: 40px; border-radius: 15px; width: 350px; text-align: center; }
-        .login-box input { width: 100%; padding: 10px; margin: 15px 0; border: 1px solid #ccc; border-radius: 5px; }
-        .login-box button { width: 100%; padding: 10px; background: var(--primary-color); color: white; border-radius: 5px; }
+        #admin-login { display: flex; justify-content: center; align-items: center; height: 100vh; background: linear-gradient(135deg, var(--primary-color), #2c3e50); }
+        .login-box { background: white; padding: 40px; border-radius: 15px; width: 350px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .login-box input { width: 100%; padding: 12px; margin: 15px 0; border: 1px solid #ccc; border-radius: 5px; outline:none; }
+        .login-box button { width: 100%; padding: 12px; background: var(--primary-color); color: white; border-radius: 5px; font-weight:bold; }
 
-        /* لوحة التحكم */
         #admin-dashboard { display: none; grid-template-columns: 250px 1fr; min-height: 100vh; }
-        .sidebar { background: #2c3e50; color: white; padding: 20px 0; }
+        .sidebar { background: #1a252f; color: white; padding: 20px 0; }
         .sidebar-logo { text-align: center; font-size: 24px; margin-bottom: 30px; color: #e74c3c; font-weight: bold;}
-        .sidebar ul li { padding: 15px 20px; border-bottom: 1px solid #34495e; cursor: pointer; transition: 0.3s;}
-        .sidebar ul li:hover, .sidebar ul li.active { background: var(--primary-color); }
-        .sidebar ul li i { margin-left: 10px; }
-        [dir="ltr"] .sidebar ul li i { margin-left: 0; margin-right: 10px; }
+        .sidebar ul li { padding: 15px 20px; border-bottom: 1px solid #2c3e50; cursor: pointer; transition: 0.3s;}
+        .sidebar ul li:hover, .sidebar ul li.active { background: var(--primary-color); border-left: 4px solid white; }
+        .sidebar ul li i { margin-left: 10px; width: 20px; text-align: center; }[dir="ltr"] .sidebar ul li i { margin-left: 0; margin-right: 10px; }
         
-        .admin-content { padding: 30px; background: #ecf0f1; }
+        .admin-content { padding: 30px; }
         .admin-section { display: none; }
-        .admin-section.active { display: block; }
-        .admin-header { display: flex; justify-content: space-between; margin-bottom: 30px;}
+        .admin-section.active { display: block; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .admin-header { margin-bottom: 30px; color: #2c3e50; }
         
-        /* المربعات الإحصائية */
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
-        .stat-card { padding: 20px; border-radius: 10px; color: white; display: flex; align-items: center; justify-content: space-between;}
-        .stat-card h3 { font-size: 16px; font-weight: normal; }
-        .stat-card .num { font-size: 30px; font-weight: bold; }
-        .stat-card i { font-size: 40px; opacity: 0.5; }
+        .stat-card { padding: 25px; border-radius: 12px; color: white; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .stat-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 5px; }
+        .stat-card .num { font-size: 32px; font-weight: 800; }
+        .stat-card i { font-size: 45px; opacity: 0.4; }
         .bg-1 { background: linear-gradient(45deg, #FF512F, #DD2476); }
         .bg-2 { background: linear-gradient(45deg, #1D976C, #93F9B9); }
         .bg-3 { background: linear-gradient(45deg, #4CB8C4, #3CD3AD); }
         .bg-4 { background: linear-gradient(45deg, #b20a2c, #fffbd5); color: #800020;}
 
-        /* جداول ونماذج الإدارة */
-        .admin-card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px;}
-        .admin-form input, .admin-form textarea { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 5px; }
-        .admin-btn { background: var(--primary-color); color: white; padding: 10px 20px; border-radius: 5px; border:none; cursor:pointer;}
+        .admin-card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); margin-bottom: 25px;}
+        .admin-form input, .admin-form textarea { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; font-family:inherit;}
+        .admin-btn { background: var(--primary-color); color: white; padding: 12px 25px; border-radius: 8px; font-weight:bold; }
         
-        /* التجاوب (Responsive) */
         @media(max-width: 768px) {
             .search-bar { display: none; }
             #admin-dashboard { grid-template-columns: 1fr; }
-            .sidebar { display: none; } /* يمكن إضافة زر قائمة للجوال في الإدارة */
+            .sidebar { display: none; } 
         }
     </style>
 </head>
@@ -231,41 +195,71 @@
 
     <!-- ================================= واجهة المستخدم (العميل) ================================= -->
     <div id="client-view">
-        <!-- الهيدر -->
-        <header>
-            <div class="logo">DZTURK</div>
-            <div class="search-bar">
-                <input type="text" placeholder="ابحث عن منتجات، ماركات..." data-i18n="search_placeholder">
-                <i class="fas fa-search"></i>
-            </div>
-            <div class="header-icons">
-                <button class="lang-btn" onclick="toggleLanguage()" id="langToggle">FR</button>
-                <i class="fas fa-bars"></i>
-            </div>
-        </header>
+        
+        <!-- غطاء القائمة الجانبية المظلم -->
+        <div id="menuOverlay" class="menu-overlay" onclick="toggleMenu()"></div>
 
-        <!-- البانر -->
-        <div class="banner"></div>
+        <!-- القائمة الجانبية (Sidebar) -->
+        <div id="sideMenu" class="side-menu">
+            <span class="close-btn" onclick="toggleMenu()">&times;</span>
+            <a href="#" data-i18n="menu_home" onclick="toggleMenu()">الرئيسية</a>
+            <a href="#" data-i18n="menu_about" onclick="toggleMenu()">من نحن</a>
+            <a href="#" data-i18n="menu_privacy" onclick="toggleMenu()">سياسة الخصوصية</a>
+            <a href="#" data-i18n="menu_contact" onclick="toggleMenu()">اتصل بنا</a>
+        </div>
 
-        <!-- الشريط المتحرك -->
-        <div class="ticker-wrap">
-            <div class="ticker" data-i18n="ticker_text">
-                أطلب بضاعتك من تركيا الى باب منزلك  -  أطلب بضاعتك من تركيا الى باب منزلك  -  أطلب بضاعتك من تركيا الى باب منزلك
+        <!-- المحتوى الرئيسي للموقع -->
+        <div id="main-content">
+            <!-- الهيدر -->
+            <header>
+                <div class="logo">DZTURK</div>
+                <div class="search-bar">
+                    <input type="text" placeholder="ابحث عن منتجات، ماركات..." data-i18n="search_placeholder">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="header-icons">
+                    <button class="lang-btn" onclick="toggleLanguage()" id="langToggle">FR</button>
+                    <i class="fas fa-bars menu-btn" onclick="toggleMenu()"></i>
+                </div>
+            </header>
+
+            <!-- البانر الإعلاني بالصورة المطلوبة -->
+            <div class="banner">
+                <a href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh5ajumPR-7XGR_DH8DLgETwoGWishMLPCjVV4kpew2a__Yu_zVN1ICKqeuKJ85DvArt63ZeS6jVnhaNMkPslyeS1H-r3GRDnrg7LL0MLu-MBEiYTws7lPrkoqnLXXfUBtUCuoAMywYWznu56uDZW11KZ-XjDWTNwnzRdaA4udl8aamUGb-8PpG4qp5xy4/s1536/1000015383.png" target="_blank">
+                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh5ajumPR-7XGR_DH8DLgETwoGWishMLPCjVV4kpew2a__Yu_zVN1ICKqeuKJ85DvArt63ZeS6jVnhaNMkPslyeS1H-r3GRDnrg7LL0MLu-MBEiYTws7lPrkoqnLXXfUBtUCuoAMywYWznu56uDZW11KZ-XjDWTNwnzRdaA4udl8aamUGb-8PpG4qp5xy4/s1536/1000015383.png" alt="Banner DZTURK">
+                </a>
+            </div>
+
+            <!-- الشريط المتحرك -->
+            <div class="ticker-wrap">
+                <div class="ticker" data-i18n="ticker_text">
+                    أطلب بضاعتك من تركيا الى باب منزلك &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; أطلب بضاعتك من تركيا الى باب منزلك &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; أطلب بضاعتك من تركيا الى باب منزلك
+                </div>
+            </div>
+
+            <!-- قسم المنتجات -->
+            <div class="products-container" id="products-list">
+                <!-- سيتم توليد المنتجات بواسطة الجافاسكربت -->
             </div>
         </div>
 
-        <!-- قسم المنتجات -->
-        <div class="products-container" id="products-list">
-            <!-- سيتم توليد المنتجات عشوائياً بواسطة الجافاسكربت -->
-        </div>
+        <!-- الفوتر -->
+        <footer class="site-footer">
+            <div class="footer-logo">DZTURK</div>
+            <div class="footer-links">
+                <a href="#" data-i18n="menu_home">الرئيسية</a>
+                <a href="#" data-i18n="menu_about">من نحن</a>
+                <a href="#" data-i18n="menu_privacy">سياسة الخصوصية</a>
+                <a href="#" data-i18n="menu_contact">اتصل بنا</a>
+            </div>
+            <div class="copyright" data-i18n="footer_copy">© 2026 جميع الحقوق محفوظة لموقع DZTURK</div>
+        </footer>
 
         <!-- الأزرار العائمة -->
         <div class="fab-container fab-right">
-            <!-- زر المتجر المتحرك -->
             <button class="fab fab-store" onclick="openModal()">
                 <i class="fas fa-box-open"></i>
             </button>
-            <!-- زر الواتساب -->
             <a href="https://wa.me/213559293773" target="_blank" class="fab fab-whatsapp">
                 <i class="fab fa-whatsapp"></i>
             </a>
@@ -316,7 +310,6 @@
 
     <!-- ================================= واجهة الإدارة (الآدمن) ================================= -->
     <div id="admin-wrapper">
-        
         <!-- صفحة الدخول -->
         <div id="admin-login">
             <div class="login-box">
@@ -329,7 +322,6 @@
 
         <!-- لوحة التحكم -->
         <div id="admin-dashboard">
-            <!-- القائمة الجانبية -->
             <div class="sidebar">
                 <div class="sidebar-logo">DZTURK Admin</div>
                 <ul>
@@ -341,79 +333,50 @@
                 </ul>
             </div>
 
-            <!-- محتوى لوحة التحكم -->
             <div class="admin-content">
-                
-                <!-- قسم الإحصائيات (الرئيسية) -->
                 <div id="dashboard" class="admin-section active">
                     <div class="admin-header"><h2>لوحة الإحصائيات</h2></div>
                     <div class="stats-grid">
-                        <div class="stat-card bg-1">
-                            <div><h3>طلبات جديدة</h3><div class="num">14</div></div>
-                            <i class="fas fa-shopping-cart"></i>
-                        </div>
-                        <div class="stat-card bg-2">
-                            <div><h3>جميع الطلبات</h3><div class="num">1,250</div></div>
-                            <i class="fas fa-boxes"></i>
-                        </div>
-                        <div class="stat-card bg-3">
-                            <div><h3>زيارات اليوم</h3><div class="num">340</div></div>
-                            <i class="fas fa-eye"></i>
-                        </div>
-                        <div class="stat-card bg-4">
-                            <div><h3>زيارات الشهر</h3><div class="num">12,400</div></div>
-                            <i class="fas fa-chart-bar"></i>
-                        </div>
+                        <div class="stat-card bg-1"><div><h3>طلبات جديدة</h3><div class="num">14</div></div><i class="fas fa-shopping-cart"></i></div>
+                        <div class="stat-card bg-2"><div><h3>جميع الطلبات</h3><div class="num">1,250</div></div><i class="fas fa-boxes"></i></div>
+                        <div class="stat-card bg-3"><div><h3>زيارات اليوم</h3><div class="num">340</div></div><i class="fas fa-eye"></i></div>
+                        <div class="stat-card bg-4"><div><h3>زيارات الشهر</h3><div class="num">12,400</div></div><i class="fas fa-chart-bar"></i></div>
                     </div>
                 </div>
 
-                <!-- قسم الإعدادات -->
                 <div id="settings" class="admin-section">
                     <div class="admin-header"><h2>إعدادات الموقع (معلومات ولوغو)</h2></div>
                     <div class="admin-card admin-form">
-                        <h3>اللغة العربية</h3>
+                        <h3 style="margin-bottom:10px;">اللغة العربية</h3>
                         <input type="text" placeholder="اسم الموقع بالعربية" value="DZTURK">
-                        <input type="text" placeholder="وصف الموقع بالعربية">
-                        <h3 style="margin-top: 20px;">اللغة الفرنسية</h3>
+                        <h3 style="margin: 20px 0 10px;">اللغة الفرنسية</h3>
                         <input type="text" placeholder="اسم الموقع بالفرنسية" value="DZTURK">
-                        <input type="text" placeholder="وصف الموقع بالفرنسية">
-                        <h3 style="margin-top: 20px;">تغيير اللوغو</h3>
+                        <h3 style="margin: 20px 0 10px;">تغيير اللوغو</h3>
                         <input type="file" accept="image/*">
-                        <button class="admin-btn">حفظ التغييرات</button>
+                        <button class="admin-btn" style="margin-top:15px;">حفظ التغييرات</button>
                     </div>
                 </div>
 
-                <!-- قسم المنتجات -->
                 <div id="products" class="admin-section">
                     <div class="admin-header"><h2>إدارة المنتجات</h2></div>
                     <div class="admin-card admin-form">
-                        <h3>إضافة منتج جديد</h3>
+                        <h3 style="margin-bottom:15px;">إضافة منتج جديد</h3>
                         <input type="text" placeholder="اسم المنتج">
                         <input type="text" placeholder="السعر">
                         <input type="file" accept="image/*">
                         <button class="admin-btn">إضافة المنتج</button>
                     </div>
-                    <div class="admin-card">
-                        <h3>المنتجات السابقة (تعديل / حذف)</h3>
-                        <p style="color:#777; margin-top:10px;">(جدول المنتجات سيظهر هنا...)</p>
-                    </div>
                 </div>
 
-                <!-- قسم البانر -->
                 <div id="banners" class="admin-section">
                     <div class="admin-header"><h2>إدارة البانرات الإعلانية</h2></div>
                     <div class="admin-card admin-form">
-                        <h3>إضافة بانر جديد</h3>
+                        <h3 style="margin-bottom:15px;">إضافة بانر جديد</h3>
                         <input type="file" accept="image/*" title="رفع صورة بانر بجودة جيدة">
                         <input type="text" placeholder="رابط التحويل (Link)">
                         <button class="admin-btn">رفع البانر</button>
                     </div>
-                    <div class="admin-card">
-                        <h3>البانرات الحالية</h3>
-                        <p style="color:#777; margin-top:10px;">(قائمة البانرات لتعديلها أو حذفها ستظهر هنا...)</p>
-                    </div>
                 </div>
-
             </div>
         </div>
     </div>
@@ -421,98 +384,113 @@
 
     <!-- ================================= الجافاسكريبت ================================= -->
     <script>
-        // --- نظام اللغات (عربي / فرنسي) ---
+        // --- نظام اللغات والترجمة ---
         const translations = {
             ar: {
                 search_placeholder: "ابحث عن منتجات، ماركات...",
-                ticker_text: "أطلب بضاعتك من تركيا الى باب منزلك",
+                ticker_text: "أطلب بضاعتك من تركيا الى باب منزلك \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0 أطلب بضاعتك من تركيا الى باب منزلك",
                 modal_title: "ماذا تريد ان تشتري من تركيا ؟",
-                ph_product_name: "اسم المنتج",
-                ph_brand: "ماركة المنتج",
-                ph_quantity: "الكمية",
-                ph_fullname: "الاسم واللقب",
-                ph_phone: "رقم الهاتف",
-                ph_province: "الولاية",
+                ph_product_name: "اسم المنتج", ph_brand: "ماركة المنتج", ph_quantity: "الكمية",
+                ph_fullname: "الاسم واللقب", ph_phone: "رقم الهاتف", ph_province: "الولاية",
                 btn_send: "إرسال الطلب",
-                warning_text: "ملاحظة: يجب تسبيق 20 % من مبلغ البضاعة لتأكيد طلبك ، سيتم خصم 20% من التكلفة الإجمالية لبضاعتك بعد استلامها."
+                warning_text: "ملاحظة: يجب تسبيق 20 % من مبلغ البضاعة لتأكيد طلبك ، سيتم خصم 20% من التكلفة الإجمالية لبضاعتك بعد استلامها.",
+                menu_home: "الرئيسية", menu_about: "من نحن", menu_privacy: "سياسة الخصوصية", menu_contact: "اتصل بنا",
+                footer_copy: "© 2026 جميع الحقوق محفوظة لموقع DZTURK"
             },
             fr: {
                 search_placeholder: "Rechercher des produits, marques...",
-                ticker_text: "Commandez vos marchandises de Turquie jusqu'à votre porte",
+                ticker_text: "Commandez vos marchandises de Turquie jusqu'à votre porte \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0 Commandez vos marchandises de Turquie",
                 modal_title: "Que voulez-vous acheter de Turquie ?",
-                ph_product_name: "Nom du produit",
-                ph_brand: "Marque",
-                ph_quantity: "Quantité",
-                ph_fullname: "Nom et Prénom",
-                ph_phone: "Numéro de téléphone",
-                ph_province: "Wilaya (Province)",
+                ph_product_name: "Nom du produit", ph_brand: "Marque", ph_quantity: "Quantité",
+                ph_fullname: "Nom et Prénom", ph_phone: "Numéro de téléphone", ph_province: "Wilaya",
                 btn_send: "Envoyer la commande",
-                warning_text: "Remarque : Une avance de 20% du montant est requise pour confirmer votre commande. Les 20% seront déduits du coût total à la réception."
+                warning_text: "Remarque : Une avance de 20% du montant est requise pour confirmer votre commande. Les 20% seront déduits du coût total à la réception.",
+                menu_home: "Accueil", menu_about: "À Propos", menu_privacy: "Politique de Confidentialité", menu_contact: "Contactez-nous",
+                footer_copy: "© 2026 Tous droits réservés à DZTURK"
             }
         };
 
         let currentLang = 'ar';
-
         function toggleLanguage() {
             currentLang = currentLang === 'ar' ? 'fr' : 'ar';
             document.documentElement.lang = currentLang;
             document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
             document.getElementById('langToggle').innerText = currentLang === 'ar' ? 'FR' : 'AR';
             
-            // تحديث النصوص
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
-                if(el.tagName === 'INPUT') {
-                    el.placeholder = translations[currentLang][key];
-                } else {
-                    el.innerText = translations[currentLang][key];
-                }
+                if(el.tagName === 'INPUT') el.placeholder = translations[currentLang][key];
+                else el.innerText = translations[currentLang][key];
             });
+            renderProducts(); // إعادة تصيير المنتجات بتسميات اللغة الجديدة
         }
 
-        // --- توليد منتجات وهمية عشوائية ---
-        const productsList = document.getElementById('products-list');
-        for(let i=1; i<=8; i++) {
-            productsList.innerHTML += `
-                <div class="product-card">
-                    <img src="https://picsum.photos/400/300?random=${i}" class="product-img" alt="Product">
-                    <div class="product-info">
-                        <div class="product-title">منتج تركي رائع ${i}</div>
-                        <div class="product-price">${(Math.random() * 10000 + 1000).toFixed(0)} DZD</div>
+        // --- وظائف القائمة الجانبية الموبايل ---
+        function toggleMenu() {
+            const menu = document.getElementById('sideMenu');
+            const overlay = document.getElementById('menuOverlay');
+            menu.classList.toggle('open');
+            overlay.classList.toggle('active');
+        }
+
+        // --- توليد منتجات عشوائية (ملابس، حقائب، إكسسوارات حقيقية) ---
+        const productImages =[
+            "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=400&q=80", // جاكيت
+            "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=400&q=80", // حقيبة
+            "https://images.unsplash.com/photo-1523206489230-c012c64b2b48?auto=format&fit=crop&w=400&q=80", // ساعة
+            "https://images.unsplash.com/photo-1584916201218-f4242ceb4809?auto=format&fit=crop&w=400&q=80", // حذاء
+            "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&w=400&q=80", // ملابس
+            "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=400&q=80", // حقيبة ظهر
+            "https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=400&q=80", // سترة جلدية
+            "https://images.unsplash.com/photo-1601924994987-69e26d50dc26?auto=format&fit=crop&w=400&q=80"  // إكسسوارات
+        ];
+        const namesAr =["جاكيت شتوي أنيق", "حقيبة جلدية فاخرة", "ساعة يد كلاسيكية", "حذاء رياضي مريح", "طقم ملابس صيفي", "حقيبة ظهر عصرية", "سترة جلدية أصلية", "إكسسوارات نسائية"];
+        const namesFr =["Veste d'hiver", "Sac en cuir", "Montre classique", "Baskets confortables", "Ensemble d'été", "Sac à dos", "Veste en cuir", "Accessoires"];
+        const prices =[12500, 8900, 15000, 6500, 4200, 5800, 18000, 3500];
+
+        function renderProducts() {
+            const list = document.getElementById('products-list');
+            list.innerHTML = '';
+            for(let i=0; i<8; i++) {
+                const name = currentLang === 'ar' ? namesAr[i] : namesFr[i];
+                list.innerHTML += `
+                    <div class="product-card">
+                        <img src="${productImages[i]}" class="product-img" alt="${name}">
+                        <div class="product-info">
+                            <div class="product-title">${name}</div>
+                            <div class="product-price">${prices[i]} DZD</div>
+                        </div>
                     </div>
-                </div>
-            `;
+                `;
+            }
         }
+        renderProducts();
 
-        // --- وظائف النافذة المنبثقة (Modal) ---
+        // --- وظائف النافذة المنبثقة للطلب الخاص ---
         function openModal() {
             document.getElementById('orderModal').style.display = 'flex';
             document.getElementById('orderForm').style.display = 'block';
             document.getElementById('warningMsg').style.display = 'none';
         }
-
         function closeModal() {
             document.getElementById('orderModal').style.display = 'none';
         }
-
         function submitOrder() {
-            // إخفاء الفورم وإظهار رسالة التحذير الحمراء
             document.getElementById('orderForm').style.display = 'none';
             document.getElementById('warningMsg').style.display = 'block';
         }
 
-        // --- نظام التوجيه (Routing) لدخول الإدارة عبر الرابط url/#/admin09 ---
+        // --- نظام التوجيه الذكي (يدعم url/admin09 أو ?admin09 أو #admin09) ---
         function checkRoute() {
-            const hash = window.location.hash;
+            const url = window.location.href;
             const clientView = document.getElementById('client-view');
             const adminWrapper = document.getElementById('admin-wrapper');
             const adminLogin = document.getElementById('admin-login');
             const adminDash = document.getElementById('admin-dashboard');
 
-            if(hash === '#/admin09') {
+            if(url.includes('admin09')) {
                 clientView.style.display = 'none';
                 adminWrapper.style.display = 'block';
-                // التحقق مما إذا كان مسجلا مسبقا (بسيط جدا لغرض العرض)
                 if(sessionStorage.getItem('isAdmin') === 'true') {
                     adminLogin.style.display = 'none';
                     adminDash.style.display = 'grid';
@@ -521,44 +499,37 @@
                     adminDash.style.display = 'none';
                 }
             } else {
-                clientView.style.display = 'block';
+                clientView.style.display = 'flex'; // Flex للحفاظ على الفوتر في الأسفل
                 adminWrapper.style.display = 'none';
             }
         }
 
-        // الاستماع لتغير الرابط (عند كتابة #/admin09)
         window.addEventListener('hashchange', checkRoute);
-        // التحقق عند تحميل الصفحة
+        window.addEventListener('popstate', checkRoute);
         window.onload = checkRoute;
 
         // --- وظائف لوحة الإدارة ---
         function loginAdmin() {
-            const pwd = document.getElementById('adminPwd').value;
-            if(pwd === 'abobob123#') {
+            if(document.getElementById('adminPwd').value === 'abobob123#') {
                 sessionStorage.setItem('isAdmin', 'true');
                 document.getElementById('loginError').style.display = 'none';
-                checkRoute(); // إعادة توجيه للداشبورد
+                checkRoute(); 
             } else {
                 document.getElementById('loginError').style.display = 'block';
             }
         }
-
         function logoutAdmin() {
             sessionStorage.removeItem('isAdmin');
             document.getElementById('adminPwd').value = '';
-            window.location.hash = ''; // العودة للموقع
+            // العودة للموقع الرئيسي (إزالة admin09 من الرابط)
+            window.location.href = window.location.href.split('#')[0].split('?')[0].replace('admin09', '');
         }
-
         function switchTab(tabId) {
-            // تغيير الـ Active Class في القائمة
             document.querySelectorAll('.sidebar ul li').forEach(li => li.classList.remove('active'));
             event.currentTarget.classList.add('active');
-
-            // إظهار القسم المطلوب وإخفاء الباقي
             document.querySelectorAll('.admin-section').forEach(sec => sec.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
         }
-
     </script>
 </body>
 </html>
